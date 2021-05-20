@@ -1,0 +1,35 @@
+{
+  "request": [],
+  "sendHeader": [
+    {
+      "enable": true,
+      "name": "Referer Edit",
+      "ruleType": "modifySendHeader",
+      "matchType": "domain",
+      "pattern": "all-access.wax.io",
+      "exclude": "",
+      "group": "Ungrouped",
+      "isFunction": false,
+      "action": {
+        "name": "referer",
+        "value": "https://alienworlds.io"
+      }
+    },
+    {
+      "enable": true,
+      "name": "176.103.92.58",
+      "ruleType": "modifySendHeader",
+      "matchType": "all",
+      "pattern": "",
+      "exclude": "",
+      "group": "Ungrouped",
+      "isFunction": false,
+      "action": {
+        "name": "referer",
+        "value": "https://alienworlds.io"
+      }
+    }
+  ],
+  "receiveHeader": [],
+  "receiveBody": []
+}
