@@ -12,7 +12,6 @@
 (function() {
     'use strict';
 
-let firstItem = document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.card-section > div.card-img > img")
 const firstItem = document.querySelector("#root > div > div > div > div.wapper > section > div > section > img");
 const secondItem = document.querySelector("#root > div > div > div > div.wapper > section > div > section > img:nth-child(2)");
 const goldIcon = document.querySelector("#root > div > div > div > section.container__header > div:nth-child(1) > i > img");
