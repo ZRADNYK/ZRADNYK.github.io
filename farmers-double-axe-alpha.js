@@ -42,12 +42,12 @@ async function start() {
     }
 }
 
-async useItems() {
+async function useItems() {
 	if(firstItem !== undefined && secondItem !== undefined) {
 		await mine(firstItem);
         await mine(secondItem);
 	}
-	if(singleItem !== undefined && (firstItem === undefined && secondItem === undefined) {
+	if(singleItem !== undefined && (firstItem === undefined && secondItem === undefined)) {
 		await mine(singleItem);
 	}
 }
