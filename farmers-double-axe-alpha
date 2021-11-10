@@ -1,3 +1,17 @@
+// ==UserScript==
+// @name         Farmers World Bots
+// @namespace    http://tampermonkey.net/
+// @version      0.1
+// @description  try to take over the world!
+// @author       You
+// @match        https://play.farmersworld.io
+// @icon         data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
 let firstItem = document.querySelector("#root > div > div > div > div.wapper > section > div > section > img");
 let secondItem = document.querySelector("#root > div > div > div > div.wapper > section > div > section > img:nth-child(2)");
 let goldIcon = document.querySelector("#root > div > div > div > section.container__header > div:nth-child(1) > i > img");
@@ -62,3 +76,5 @@ function stringToTime(str) {
 }
 
 start();
+// Your code here...
+})();
