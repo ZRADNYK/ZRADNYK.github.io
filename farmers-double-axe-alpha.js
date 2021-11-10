@@ -116,5 +116,5 @@ async function initItems() {
 (async function () {
     await delay(10000);
     await checkAuthorize();
-    start();
+    await start();
 })();
