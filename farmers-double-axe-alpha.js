@@ -9,8 +9,8 @@
 // @grant        none
 // ==/UserScript==
 
-(function() {
-    'use strict';
+(async function() {
+'use strict';
 
 const firstItem = document.querySelector("#root > div > div > div > div.wapper > section > div > section > img");
 const secondItem = document.querySelector("#root > div > div > div > div.wapper > section > div > section > img:nth-child(2)");
