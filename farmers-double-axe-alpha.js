@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Farmers World Bot
 // @namespace    http://tampermonkey.net/
-// @version      0.1.5
+// @version      0.1.6
 // @description  Let's farm easy way
 // @author       ZRADNYK
 // @match        https://play.farmersworld.io
@@ -13,6 +13,7 @@
 const loginButton = document.querySelector("#root > div > div > div > button");
 let firstItem;
 let secondItem;
+let singleItem;
 let goldIcon;
 let mineButton;
 let timeSelector;
@@ -26,8 +27,7 @@ async function start() {
     let timeLeftMillis = stringToTime(timeLeft);
     console.log(new Date().toString() + ' Current cooldown : ' + timeLeft);
     if(timeLeftMillis === 0) {
-        await mine(firstItem);
-        await mine(secondItem);
+        await useItems();
         console.log('mine!');
         console.log('mined at ' + new Date());
         let cd = await getCooldown();
@@ -41,6 +41,17 @@ async function start() {
         id = setTimeout(start, timeLeftMillis);
     }
 }
+
+async useItems() {
+	if(firstItem !== undefined && secondItem !== undefined) {
+		await mine(firstItem);
+        await mine(secondItem);
+	}
+	if(singleItem !== undefined && (firstItem === undefined && secondItem === undefined) {
+		await mine(singleItem);
+	}
+}
+	
 
 async function mine(item) {
     if(item !== undefined) {
@@ -96,6 +107,7 @@ async function checkAuthorize() {
 async function initItems() {
 	firstItem = document.querySelector("#root > div > div > div > div.wapper > section > div > section > img");
 	secondItem = document.querySelector("#root > div > div > div > div.wapper > section > div > section > img:nth-child(2)");
+	singleItem = document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.card-section > div.card-img > img");
 	goldIcon = document.querySelector("#root > div > div > div > section.container__header > div:nth-child(1) > i > img");
 	mineButton = document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.info-section > div.home-card-button__group > div:nth-child(1) > button > div")
 	timeSelector = document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.info-section > div.info-time > div");
