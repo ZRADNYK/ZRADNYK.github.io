@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Farmers World Bot
 // @namespace    http://tampermonkey.net/
-// @version      0.1.2
+// @version      0.1.3
 // @description  Let's farm easy way
 // @author       ZRADNYK
 // @match        https://play.farmersworld.io
@@ -25,6 +25,8 @@ const delay = ms => new Promise(res => setTimeout(res, ms));
 let timeLeft, id;
 
 async function start() {
+	await checkAuthorize();
+
     timeLeft =  await getCooldown();
     let timeLeftMillis = stringToTime(timeLeft);
     console.log(new Date().toString() + ' Current cooldown : ' + timeLeft);
@@ -90,7 +92,6 @@ async function checkAuthorize() {
 	}
 }
 
-await checkAuthorize();
 start();
     
     
