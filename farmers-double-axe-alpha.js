@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Farmers World Bot
 // @namespace    http://tampermonkey.net/
-// @version      0.1.7
+// @version      0.1.8
 // @description  Let's farm easy way
 // @author       ZRADNYK
 // @match        https://play.farmersworld.io
@@ -17,9 +17,10 @@ let singleItem;
 let goldIcon;
 let mineButton;
 let timeSelector;
+let homeButton;
 let firstLogIn = true;
 
-var delay = ms => new Promise(res => setTimeout(res, ms));
+const delay = ms => new Promise(res => setTimeout(res, ms));
 let timeLeft, id;
 
 async function start() {
@@ -28,13 +29,13 @@ async function start() {
         await checkAuthorize();
         firstLogIn = false;
     }
-	await initItems();
+    await initItems();
     timeLeft =  await getCooldown();
     let timeLeftMillis = stringToTime(timeLeft);
     console.log(new Date().toString() + ' Current cooldown : ' + timeLeft);
     if(timeLeftMillis === 0) {
+        await goHome();
         await useItems();
-        console.log('mine!');
         console.log('mined at ' + new Date());
         let cd = await getCooldown();
         let cdInMillis = stringToTime(cd);
@@ -48,14 +49,19 @@ async function start() {
     }
 }
 
+async function goHome() {
+    homeButton.click();
+    await delay(2000);
+}
+
 async function useItems() {
-	if(firstItem !== undefined && secondItem !== undefined) {
-		await mine(firstItem);
+    if(firstItem !== undefined && secondItem !== undefined) {
+        await mine(firstItem);
         await mine(secondItem);
-	}
-	if(singleItem !== undefined && (firstItem === undefined && secondItem === undefined)) {
-		await mine(singleItem);
-	}
+    }
+    if(singleItem !== undefined && (firstItem === undefined && secondItem === undefined)) {
+        await mine(singleItem);
+    }
 }
 
 
@@ -70,8 +76,8 @@ async function mine(item) {
         goldIcon.click();
         await delay(2000);
     } else {
-		alert('Cannot find your item!');
-	}
+        alert('Cannot find your item!');
+    }
 }
 
 async function getCooldown() {
@@ -87,14 +93,11 @@ async function getCooldown() {
 
 function stringToTime(str) {
     let timeArray = str.split(':');
-    console.log(timeArray);
-    let millis = (Number.parseInt(timeArray[0]) * 60 * 60 + Number.parseInt(timeArray[1]) * 60 + Number.parseInt(timeArray[2])) * 1000;
-    console.log('millis: ', millis);
-    return millis;
+    return (Number.parseInt(timeArray[0]) * 60 * 60 + Number.parseInt(timeArray[1]) * 60 + Number.parseInt(timeArray[2])) * 1000;
 }
 
 async function checkAuthorize() {
-	console.log('Trying to login to your .wam account');
+    console.log('Trying to login to your .wam account');
     if (loginButton !== undefined) {
         loginButton.click();
         await delay(2000);
@@ -104,19 +107,20 @@ async function checkAuthorize() {
     if(waxWalletAccount !== undefined) {
         waxWalletAccount.click();
         await delay(10000);
-		console.log('logged in successfully');
+        console.log('logged in successfully');
     } else {
-		alert('Wax session is expired! Please log in manually!');
-	}
+        alert('Wax session is expired! Please log in manually!');
+    }
 }
 
 async function initItems() {
-	firstItem = document.querySelector("#root > div > div > div > div.wapper > section > div > section > img");
-	secondItem = document.querySelector("#root > div > div > div > div.wapper > section > div > section > img:nth-child(2)");
-	singleItem = document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.card-section > div.card-img > img");
-	goldIcon = document.querySelector("#root > div > div > div > section.container__header > div:nth-child(1) > i > img");
-	mineButton = document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.info-section > div.home-card-button__group > div:nth-child(1) > button > div")
-	timeSelector = document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.info-section > div.info-time > div");
+    firstItem = document.querySelector("#root > div > div > div > div.wapper > section > div > section > img");
+    secondItem = document.querySelector("#root > div > div > div > div.wapper > section > div > section > img:nth-child(2)");
+    singleItem = document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.card-section > div.card-img > img");
+    goldIcon = document.querySelector("#root > div > div > div > section.container__header > div:nth-child(1) > i > img");
+    mineButton = document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.info-section > div.home-card-button__group > div:nth-child(1) > button > div")
+    timeSelector = document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.info-section > div.info-time > div");
+    homeButton = document.querySelector("#root > div > div > div > section.navbar-container > div.navbar-group.active > img");
 }
 
 start();
