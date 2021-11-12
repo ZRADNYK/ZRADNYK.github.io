@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Farmers World Bot
 // @namespace    http://tampermonkey.net/
-// @version      0.1.8
+// @version      0.1.9
 // @description  Let's farm easy way
 // @author       ZRADNYK
 // @match        https://play.farmersworld.io
@@ -17,7 +17,7 @@ let singleItem;
 let goldIcon;
 let mineButton;
 let timeSelector;
-let homeButton;
+let homeButtonSelector;
 let firstLogIn = true;
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
@@ -50,8 +50,10 @@ async function start() {
 }
 
 async function goHome() {
-    homeButton.click();
-    await delay(2000);
+    if(!homeButtonSelector.classList.contains('active')) {
+        homeButtonSelector.click();
+        await delay(2000);
+    }
 }
 
 async function useItems() {
@@ -120,7 +122,7 @@ async function initItems() {
     goldIcon = document.querySelector("#root > div > div > div > section.container__header > div:nth-child(1) > i > img");
     mineButton = document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.info-section > div.home-card-button__group > div:nth-child(1) > button > div")
     timeSelector = document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.info-section > div.info-time > div");
-    homeButton = document.querySelector("#root > div > div > div > section.navbar-container > div.navbar-group.active > img");
+    homeButtonSelector = document.querySelector("#root > div > div > div > section.navbar-container > div:nth-child(1)");
 }
 
 start();
