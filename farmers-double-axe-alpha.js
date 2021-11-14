@@ -25,7 +25,7 @@ let timeLeft, id;
 
 async function start() {
     if(firstLogIn) {
-        await delay(10000);
+        await delay(15000);
         await checkAuthorize();
         firstLogIn = false;
     }
@@ -82,14 +82,31 @@ async function mine(item) {
     }
 }
 
+
+ if(firstItem !== undefined && secondItem !== undefined) {
+        await mine(firstItem);
+        await mine(secondItem);
+    }
+    if(singleItem !== undefined && (firstItem === undefined && secondItem === undefined)) {
+        await mine(singleItem);
+    }
+
+
 async function getCooldown() {
-    firstItem.click();
-    await delay(1000);
-    let firstItemTimeLeft = timeSelector.innerText;
-    secondItem.click();
-    await delay(1000);
-    let secondItemTimeLeft = timeSelector.innerText;
-    firstItemTimeLeft > secondItemTimeLeft ? timeLeft = firstItemTimeLeft : timeLeft = secondItemTimeLeft;
+     if(firstItem !== undefined && secondItem !== undefined && singleItem == undefined) {
+        firstItem.click();
+        await delay(1000);
+        let firstItemTimeLeft = timeSelector.innerText;
+        secondItem.click();
+        await delay(1000);
+        let secondItemTimeLeft = timeSelector.innerText;
+        firstItemTimeLeft > secondItemTimeLeft ? timeLeft = firstItemTimeLeft : timeLeft = secondItemTimeLeft;     
+     }
+    else if(singleItem !== undefined && firstItem == undefined && secondItem == undefined) {
+        singleItem.click();
+        await delay(1000);
+        timeLeft = timeSelector.innerText;
+    }
     return timeLeft;
 }
 
