@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Farmers World Bot
 // @namespace    http://tampermonkey.net/
-// @version      0.1.9
+// @version      0.1.10
 // @description  Let's farm easy way
 // @author       ZRADNYK
 // @match        https://play.farmersworld.io
@@ -60,6 +60,7 @@ async function useItems() {
     if(firstItem !== undefined && secondItem !== undefined) {
         await mine(firstItem);
         await mine(secondItem);
+        firstItem.click();
     }
     if(singleItem !== undefined && (firstItem === undefined && secondItem === undefined)) {
         await mine(singleItem);
@@ -83,13 +84,13 @@ async function mine(item) {
 }
 
 
- if(firstItem !== undefined && secondItem !== undefined) {
-        await mine(firstItem);
-        await mine(secondItem);
-    }
-    if(singleItem !== undefined && (firstItem === undefined && secondItem === undefined)) {
-        await mine(singleItem);
-    }
+// if(firstItem !== undefined && secondItem !== undefined) {
+//        await mine(firstItem);
+//        await mine(secondItem);
+//    }
+//    if(singleItem !== undefined && (firstItem === undefined && secondItem === undefined)) {
+//        await mine(singleItem);
+//    }
 
 
 async function getCooldown() {
