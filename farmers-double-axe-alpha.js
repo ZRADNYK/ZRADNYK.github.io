@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Farmers World Bot
 // @namespace    http://tampermonkey.net/
-// @version      0.1.10
+// @version      0.2.0
 // @description  Let's farm easy way
 // @author       ZRADNYK
 // @match        https://play.farmersworld.io
@@ -62,7 +62,7 @@ async function useItems() {
         await mine(secondItem);
         firstItem.click();
     }
-    if(singleItem !== undefined && (firstItem === undefined && secondItem === undefined)) {
+    if(singleItem !== undefined && secondItem == null) {
         await mine(singleItem);
     }
 }
@@ -83,27 +83,17 @@ async function mine(item) {
     }
 }
 
-
-// if(firstItem !== undefined && secondItem !== undefined) {
-//        await mine(firstItem);
-//        await mine(secondItem);
-//    }
-//    if(singleItem !== undefined && (firstItem === undefined && secondItem === undefined)) {
-//        await mine(singleItem);
-//    }
-
-
 async function getCooldown() {
-     if(firstItem !== undefined && secondItem !== undefined && singleItem == undefined) {
+    if(firstItem !== undefined && secondItem !== undefined) {
         firstItem.click();
         await delay(1000);
         let firstItemTimeLeft = timeSelector.innerText;
         secondItem.click();
         await delay(1000);
         let secondItemTimeLeft = timeSelector.innerText;
-        firstItemTimeLeft > secondItemTimeLeft ? timeLeft = firstItemTimeLeft : timeLeft = secondItemTimeLeft;     
-     }
-    else if(singleItem !== undefined && firstItem == undefined && secondItem == undefined) {
+        firstItemTimeLeft > secondItemTimeLeft ? timeLeft = firstItemTimeLeft : timeLeft = secondItemTimeLeft;
+    }
+    else if(singleItem !== undefined && secondItem == null) {
         singleItem.click();
         await delay(1000);
         timeLeft = timeSelector.innerText;
@@ -118,13 +108,13 @@ function stringToTime(str) {
 
 async function checkAuthorize() {
     console.log('Trying to login to your .wam account');
-    if (loginButton !== undefined) {
+    if (loginButton !== null) {
         loginButton.click();
         await delay(2000);
     }
     let waxWalletAccount = document.querySelector("#root > div > div > div:nth-child(2) > div.login-modal-container > button:nth-child(2)");
 
-    if(waxWalletAccount !== undefined) {
+    if(waxWalletAccount !== null) {
         waxWalletAccount.click();
         await delay(10000);
         console.log('logged in successfully');
