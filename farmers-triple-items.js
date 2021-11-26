@@ -13,6 +13,7 @@
 const loginButton = document.querySelector("#root > div > div > div > button");
 let firstItem;
 let secondItem;
+let thirdItem;
 let goldIcon;
 let repairButton;
 let mineButton;
@@ -83,7 +84,7 @@ async function repairIfNeeded() {
     if(durability < 50 && repairButton.classList.contains('disabled') === false) {
         repairButton.click();
     }
-    await delay(5000);
+    await delay(7000);
 }
 
 async function getCooldown() {
