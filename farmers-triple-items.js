@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Farmers World Bot
 // @namespace    http://tampermonkey.net/
-// @version      0.2.2
+// @version      0.2.3
 // @description  Let's farm easy way
 // @author       ZRADNYK
 // @match        https://play.farmersworld.io
@@ -32,12 +32,15 @@ async function start() {
         firstLogIn = false;
     }
     await initItems();
-    let timeLeftMillis = await getCooldown();
+    timeLeft =  await getCooldown();
+    let timeLeftMillis = stringToTime(timeLeft);
+    console.log(new Date().toString() + ' Current cooldown : ' + timeLeft);
     if(timeLeftMillis === 0) {
         await goHome();
         await useItems();
         console.log('mined at ' + new Date());
-        let cdInMillis = await getCooldown();
+        let cd = await getCooldown();
+        let cdInMillis = stringToTime(cd);
         let nextMineAt = new Date(Date.now() + cdInMillis);
         console.log('Next mine at ' + nextMineAt);
         id = setTimeout(start, cdInMillis);
@@ -47,6 +50,7 @@ async function start() {
         id = setTimeout(start, timeLeftMillis);
     }
 }
+
 
 async function goHome() {
     if(!homeButtonSelector.classList.contains('active')) {
@@ -90,14 +94,25 @@ async function repairIfNeeded() {
 async function getCooldown() {
     firstItem.click();
     await delay(1000);
-    let firstItemTimeLeft = stringToTime(timeSelector.innerText);
+    let firstItemTimeLeft = timeSelector.innerText;
+    let fitlMillis = stringToTime(firstItemTimeLeft);
     secondItem.click();
     await delay(1000);
-    let secondItemTimeLeft = stringToTime(timeSelector.innerText);
+    let secondItemTimeLeft = timeSelector.innerText;
+    let sitlMillis = stringToTime(secondItemTimeLeft);
     thirdItem.click();
     await delay(1000);
-    let thirdItemTimeLeft = stringToTime(timeSelector.innerText);
-    return Math.max(firstItemTimeLeft, secondItemTimeLeft, thirdItemTimeLeft);
+    let thirdItemTimeLeft = timeSelector.innerText;
+    let titlMillis = stringToTime(thirdItemTimeLeft);
+
+    switch(Math.max(fitlMillis, sitlMillis, titlMillis)) {
+        case fitlMillis:
+            return firstItemTimeLeft;
+        case sitlMillis:
+            return secondItemTimeLeft;
+        case titlMillis:
+            return thirdItemTimeLeft;
+    }
 }
 
 
