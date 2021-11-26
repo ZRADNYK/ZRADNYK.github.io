@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Farmers World Bot
 // @namespace    http://tampermonkey.net/
-// @version      0.2.0
+// @version      0.2.1
 // @description  Let's farm easy way
 // @author       ZRADNYK
 // @match        https://play.farmersworld.io
@@ -15,9 +15,11 @@ let firstItem;
 let secondItem;
 let singleItem;
 let goldIcon;
+let repairButton;
 let mineButton;
 let timeSelector;
 let homeButtonSelector;
+let durability;
 let firstLogIn = true;
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
@@ -72,7 +74,7 @@ async function mine(item) {
     if(item !== undefined) {
         item.click();
         await delay(3000);
-
+        await repairIfNeeded();
         mineButton.click();
         await delay(7000);
 
@@ -81,6 +83,13 @@ async function mine(item) {
     } else {
         alert('Cannot find your item!');
     }
+}
+
+async function repairIfNeeded() {
+    if(durability < 50 && repairButton.classList.contains('disabled') === false) {
+        repairButton.click();
+    }
+    await delay(5000);
 }
 
 async function getCooldown() {
@@ -129,8 +138,10 @@ async function initItems() {
     singleItem = document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.card-section > div.card-img > img");
     goldIcon = document.querySelector("#root > div > div > div > section.container__header > div:nth-child(1) > i > img");
     mineButton = document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.info-section > div.home-card-button__group > div:nth-child(1) > button > div")
+    repairButton = document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.info-section > div.home-card-button__group > div:nth-child(2) > button > div")
     timeSelector = document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.info-section > div.info-time > div");
     homeButtonSelector = document.querySelector("#root > div > div > div > section.navbar-container > div:nth-child(1)");
+    durability = Number.parseInt(document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.card-section > div.card-number > div.content").innerText.split('/')[0]);
 }
 
 start();
