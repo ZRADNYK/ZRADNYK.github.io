@@ -11,20 +11,15 @@
 
 
 const loginButton = document.querySelector("#root > div > div > div > button");
-let firstItem;
-let secondItem;
-let thirdItem;
-let goldIcon;
-let repairButton;
-let mineButton;
+let firstItem, secondItem, thirdItem;
 let timeSelector;
-let homeButton;
+let goldIcon, homeButton, mapButton, mineButton, repairButton;
 let durability;
-let mapButton;
+let food, restoreEnergyButton, energy, exchangeFood;
 let firstLogIn = true;
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
-let miningTimeLeft, buildingTimeLeft, mineId;
+let miningTimeLeft, mineId;
 
 async function start() {
     if(firstLogIn) {
@@ -32,12 +27,62 @@ async function start() {
         await checkAuthorize();
         firstLogIn = false;
     }
+    await fillEnergy();
     await initItems();
+    await startBuilding();
+    await startMining();
+}
+
+async function fillEnergy() {
+    if(energy <= 100) {
+        let foodNeeded = (500 - energy) / 5;
+        if(food > 0) {
+            if(food - foodNeeded >= 0) {
+                console.log('Energy - eating ' + (food - foodNeeded) + ' food');
+                await eatFood(foodNeeded);
+            }
+            else {
+                console.log('Energy - eating ' + (foodNeeded - food) + ' food');
+                await eatFood(foodNeeded - food);
+            }
+        }
+        else {
+            console.log('Energy - no food to eat!');
+        }
+    }
+}
+
+async function eatFood(foodNumber) {
+    restoreEnergyButton.click();
+    await delay(2000);
+    let energyInput = document.querySelector("body > div.modal-wrapper > div > div.modal-body > input");
+    energyInput.value = foodNumber;
+    exchangeFood.click();
+    await delay(5000);
+}
+
+async function startBuilding() {
+    mapButton.click();
+
+    await delay(2000);
+    let cooldownSelector = document.querySelector("body > div.modal-wrapper > div > section > div.modal-map-content > div:nth-child(3) > div > div > div.map-component-progress > div > div.progress-bar-countdown > div")
+    let buildPlotButton = document.querySelector("body > div.modal-wrapper > div > section > div.modal-map-content > div:nth-child(3) > div > div > div.build-btn__wrapper > button:nth-child(1) > div");
+    let cooldown = cooldownSelector.innerText;
+    if(buildPlotButton.innerText === 'Build') {
+        buildPlotButton.click();
+        await delay(5000);
+        console.log('Building - built ');
+    }
+    else {
+        console.log('Building - waiting for ' + cooldown);
+        setTimeout(startMining, stringToTime(cooldown));
+    }
+    await goHome();
+}
+
+async function startMining() {
     miningTimeLeft =  await getMiningCooldown();
-    buildingTimeLeft = await buildIfNeeded();
     let timeLeftMillis = stringToTime(miningTimeLeft);
-    let buildTimeMillis = stringToTime(buildingTimeLeft);
-    setTimeout(start, buildTimeMillis);
     if(timeLeftMillis === 0) {
         await goHome();
         await useItems();
@@ -45,12 +90,12 @@ async function start() {
         let cd = await getMiningCooldown();
         let cdInMillis = stringToTime(cd);
         let nextMineAt = new Date(Date.now() + cdInMillis);
-        console.log('Next mine at ' + nextMineAt);
-        mineId = setTimeout(start, cdInMillis);
+        console.log('Mining - next mine at ' + nextMineAt);
+        mineId = setTimeout(startMining, cdInMillis);
     }
     else {
-        console.log('waiting for ', miningTimeLeft);
-        mineId = setTimeout(start, timeLeftMillis);
+        console.log('Mining - waiting for ', miningTimeLeft);
+        mineId = setTimeout(startMining, timeLeftMillis);
     }
 }
 
@@ -118,21 +163,6 @@ async function getMiningCooldown() {
     }
 }
 
-async function buildIfNeeded() {
-    mapButton.click();
-    await delay(2000);
-    let cooldownSelector = document.querySelector("body > div.modal-wrapper > div > section > div.modal-map-content > div:nth-child(3) > div > div > div.map-component-progress > div > div.progress-bar-countdown > div")
-    let buildPlotButton = document.querySelector("body > div.modal-wrapper > div > section > div.modal-map-content > div:nth-child(3) > div > div > div.build-btn__wrapper > button:nth-child(1) > div");
-    if(buildPlotButton.innerText === 'Build') {
-        buildPlotButton.click();
-        await delay(5000);
-    }
-    let cooldown = cooldownSelector.innerText;
-    await goHome();
-    return cooldown;
-}
-
-
 function stringToTime(str) {
     let timeArray = str.split(':');
     return (Number.parseInt(timeArray[0]) * 60 * 60 + Number.parseInt(timeArray[1]) * 60 + Number.parseInt(timeArray[2])) * 1000;
@@ -166,6 +196,10 @@ async function initItems() {
     homeButton = document.querySelector("#root > div > div > div > section.navbar-container > div:nth-child(1)");
     durability = Number.parseInt(document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.card-section > div.card-number > div.content").innerText.split('/')[0]);
     mapButton = document.querySelector("#root > div > div > div > section.navbar-container > div:nth-child(5) > img");
+    energy = Number.parseFloat(document.querySelector("#root > div > div > div > section.container__header > div:nth-child(5) > div.resource-number > div").innerText);
+    food = Number.parseFloat(document.querySelector("#root > div > div > div > section.container__header > div:nth-child(4) > div > div").innerText);
+    restoreEnergyButton = document.querySelector("#root > div > div > div > section.container__header > div:nth-child(5) > div.resource-energy > img");
+    exchangeFood = document.querySelector("body > div.modal-wrapper > div > div.modal-close-button.tooltip > button > div");
 }
 
 start();
