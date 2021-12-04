@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Farmers World Bot
 // @namespace    http://tampermonkey.net/
-// @version      0.2.4
+// @version      0.2.5
 // @description  Let's farm easy way
 // @author       ZRADNYK
 // @match        https://play.farmersworld.io
@@ -21,7 +21,6 @@ let timeSelector;
 let homeButton;
 let durability;
 let mapButton;
-let buildPlotButton;
 let firstLogIn = true;
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
@@ -123,11 +122,14 @@ async function buildIfNeeded() {
     mapButton.click();
     await delay(2000);
     let cooldownSelector = document.querySelector("body > div.modal-wrapper > div > section > div.modal-map-content > div:nth-child(3) > div > div > div.map-component-progress > div > div.progress-bar-countdown > div")
-    if(!buildPlotButton.classList.contains('disabled')) {
+    let buildPlotButton = document.querySelector("body > div.modal-wrapper > div > section > div.modal-map-content > div:nth-child(3) > div > div > div.build-btn__wrapper > button:nth-child(1) > div");
+    if(buildPlotButton.innerText === 'Build') {
         buildPlotButton.click();
         await delay(5000);
     }
-    return cooldownSelector.innerText;
+    let cooldown = cooldownSelector.innerText;
+    await goHome();
+    return cooldown;
 }
 
 
@@ -164,7 +166,6 @@ async function initItems() {
     homeButton = document.querySelector("#root > div > div > div > section.navbar-container > div:nth-child(1)");
     durability = Number.parseInt(document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.card-section > div.card-number > div.content").innerText.split('/')[0]);
     mapButton = document.querySelector("#root > div > div > div > section.navbar-container > div:nth-child(5) > img");
-    buildPlotButton = document.querySelector("body > div.modal-wrapper > div > section > div.modal-map-content > div:nth-child(3) > div > div > div.build-btn__wrapper > button:nth-child(1) > div");
 }
 
 start();
