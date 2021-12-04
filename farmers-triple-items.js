@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Farmers World Bot
 // @namespace    http://tampermonkey.net/
-// @version      0.2.6
+// @version      0.2.3
 // @description  Let's farm easy way
 // @author       ZRADNYK
 // @match        https://play.farmersworld.io
@@ -11,15 +11,19 @@
 
 
 const loginButton = document.querySelector("#root > div > div > div > button");
-let firstItem, secondItem, thirdItem;
+let firstItem;
+let secondItem;
+let thirdItem;
+let goldIcon;
+let repairButton;
+let mineButton;
 let timeSelector;
-let goldIcon, homeButton, mapButton, mineButton, repairButton;
+let homeButtonSelector;
 let durability;
-let food, restoreEnergyButton, energy, exchangeFood;
 let firstLogIn = true;
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
-let miningTimeLeft, mineId;
+let timeLeft, id;
 
 async function start() {
     if(firstLogIn) {
@@ -27,82 +31,30 @@ async function start() {
         await checkAuthorize();
         firstLogIn = false;
     }
-    await fillEnergy();
     await initItems();
-    await startBuilding();
-    await startMining();
-}
-
-async function fillEnergy() {
-    if(energy <= 100) {
-        let foodNeeded = (500 - energy) / 5;
-        if(food > 0) {
-            if(food - foodNeeded >= 0) {
-                console.log('Energy - eating ' + (food - foodNeeded) + ' food');
-                await eatFood(foodNeeded);
-            }
-            else {
-                console.log('Energy - eating ' + (foodNeeded - food) + ' food');
-                await eatFood(foodNeeded - food);
-            }
-        }
-        else {
-            console.log('Energy - no food to eat!');
-        }
-    }
-}
-
-async function eatFood(foodNumber) {
-    restoreEnergyButton.click();
-    await delay(2000);
-    let energyInput = document.querySelector("body > div.modal-wrapper > div > div.modal-body > input");
-    energyInput.value = foodNumber;
-    exchangeFood.click();
-    await delay(5000);
-}
-
-async function startBuilding() {
-    mapButton.click();
-
-    await delay(2000);
-    let cooldownSelector = document.querySelector("body > div.modal-wrapper > div > section > div.modal-map-content > div:nth-child(3) > div > div > div.map-component-progress > div > div.progress-bar-countdown > div")
-    let buildPlotButton = document.querySelector("body > div.modal-wrapper > div > section > div.modal-map-content > div:nth-child(3) > div > div > div.build-btn__wrapper > button:nth-child(1) > div");
-    let cooldown = cooldownSelector.innerText;
-    if(buildPlotButton.innerText === 'Build') {
-        buildPlotButton.click();
-        await delay(5000);
-        console.log('Building - built ');
-    }
-    else {
-        console.log('Building - waiting for ' + cooldown);
-        setTimeout(startMining, stringToTime(cooldown));
-    }
-    await goHome();
-}
-
-async function startMining() {
-    miningTimeLeft =  await getMiningCooldown();
-    let timeLeftMillis = stringToTime(miningTimeLeft);
+    timeLeft =  await getCooldown();
+    let timeLeftMillis = stringToTime(timeLeft);
+    console.log(new Date().toString() + ' Current cooldown : ' + timeLeft);
     if(timeLeftMillis === 0) {
         await goHome();
         await useItems();
         console.log('mined at ' + new Date());
-        let cd = await getMiningCooldown();
+        let cd = await getCooldown();
         let cdInMillis = stringToTime(cd);
         let nextMineAt = new Date(Date.now() + cdInMillis);
-        console.log('Mining - next mine at ' + nextMineAt);
-        mineId = setTimeout(startMining, cdInMillis);
+        console.log('Next mine at ' + nextMineAt);
+        id = setTimeout(start, cdInMillis);
     }
     else {
-        console.log('Mining - waiting for ', miningTimeLeft);
-        mineId = setTimeout(startMining, timeLeftMillis);
+        console.log('waiting for ', timeLeft);
+        id = setTimeout(start, timeLeftMillis);
     }
 }
 
 
 async function goHome() {
-    if(!homeButton.classList.contains('active')) {
-        homeButton.click();
+    if(!homeButtonSelector.classList.contains('active')) {
+        homeButtonSelector.click();
         await delay(2000);
     }
 }
@@ -139,7 +91,7 @@ async function repairIfNeeded() {
     await delay(7000);
 }
 
-async function getMiningCooldown() {
+async function getCooldown() {
     firstItem.click();
     await delay(1000);
     let firstItemTimeLeft = timeSelector.innerText;
@@ -162,6 +114,7 @@ async function getMiningCooldown() {
             return thirdItemTimeLeft;
     }
 }
+
 
 function stringToTime(str) {
     let timeArray = str.split(':');
@@ -193,13 +146,8 @@ async function initItems() {
     mineButton = document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.info-section > div.home-card-button__group > div:nth-child(1) > button > div")
     repairButton = document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.info-section > div.home-card-button__group > div:nth-child(2) > button > div")
     timeSelector = document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.info-section > div.info-time > div");
-    homeButton = document.querySelector("#root > div > div > div > section.navbar-container > div:nth-child(1)");
+    homeButtonSelector = document.querySelector("#root > div > div > div > section.navbar-container > div:nth-child(1)");
     durability = Number.parseInt(document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.card-section > div.card-number > div.content").innerText.split('/')[0]);
-    mapButton = document.querySelector("#root > div > div > div > section.navbar-container > div:nth-child(5) > img");
-    energy = Number.parseFloat(document.querySelector("#root > div > div > div > section.container__header > div:nth-child(5) > div.resource-number > div").innerText);
-    food = Number.parseFloat(document.querySelector("#root > div > div > div > section.container__header > div:nth-child(4) > div > div").innerText);
-    restoreEnergyButton = document.querySelector("#root > div > div > div > section.container__header > div:nth-child(5) > div.resource-energy > img");
-    exchangeFood = document.querySelector("body > div.modal-wrapper > div > div.modal-close-button.tooltip > button > div");
 }
 
 start();
