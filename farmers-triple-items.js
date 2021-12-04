@@ -11,19 +11,16 @@
 
 
 const loginButton = document.querySelector("#root > div > div > div > button");
-let firstItem;
-let secondItem;
-let thirdItem;
-let goldIcon;
-let repairButton;
-let mineButton;
+let firstItem, secondItem, thirdItem;
 let timeSelector;
-let homeButtonSelector;
+let goldIcon, homeButton, mapButton, mineButton, repairButton;
 let durability;
+let food, restoreEnergyButton, energy, exchangeFood;
 let firstLogIn = true;
 
+
 const delay = ms => new Promise(res => setTimeout(res, ms));
-let timeLeft, id;
+let miningTimeLeft, id;
 
 async function start() {
     if(firstLogIn) {
@@ -32,10 +29,11 @@ async function start() {
         firstLogIn = false;
     }
     await initItems();
-    timeLeft =  await getCooldown();
-    let timeLeftMillis = stringToTime(timeLeft);
-    console.log(new Date().toString() + ' Current cooldown : ' + timeLeft);
-    if(timeLeftMillis === 0) {
+    await fillEnergy();
+    miningTimeLeft =  await getCooldown();
+    let miningTimeLeftMillis = stringToTime(miningTimeLeft);
+    console.log(new Date().toString() + ' Current cooldown : ' + miningTimeLeft);
+    if(miningTimeLeftMillis === 0) {
         await goHome();
         await useItems();
         console.log('mined at ' + new Date());
@@ -46,11 +44,38 @@ async function start() {
         id = setTimeout(start, cdInMillis);
     }
     else {
-        console.log('waiting for ', timeLeft);
-        id = setTimeout(start, timeLeftMillis);
+        console.log('waiting for ', miningTimeLeft);
+        id = setTimeout(start, miningTimeLeftMillis);
     }
 }
 
+async function fillEnergy() {
+    if(energy <= 100) {
+        let foodNeeded = (500 - energy) / 5;
+        if(food > 0) {
+            if(food - foodNeeded >= 0) {
+                console.log('Energy - eating ' + (food - foodNeeded) + ' food');
+                await eatFood(foodNeeded);
+            }
+            else {
+                console.log('Energy - eating ' + (foodNeeded - food) + ' food');
+                await eatFood(foodNeeded - food);
+            }
+        }
+        else {
+            console.log('Energy - no food to eat!');
+        }
+    }
+}
+
+async function eatFood(foodNumber) {
+    restoreEnergyButton.click();
+    await delay(2000);
+    let energyInput = document.querySelector("body > div.modal-wrapper > div > div.modal-body > input");
+    energyInput.value = foodNumber;
+    exchangeFood.click();
+    await delay(5000);
+}
 
 async function goHome() {
     if(!homeButtonSelector.classList.contains('active')) {
@@ -148,6 +173,10 @@ async function initItems() {
     timeSelector = document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.info-section > div.info-time > div");
     homeButtonSelector = document.querySelector("#root > div > div > div > section.navbar-container > div:nth-child(1)");
     durability = Number.parseInt(document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.card-section > div.card-number > div.content").innerText.split('/')[0]);
+    energy = Number.parseFloat(document.querySelector("#root > div > div > div > section.container__header > div:nth-child(5) > div.resource-number > div").innerText);
+    food = Number.parseFloat(document.querySelector("#root > div > div > div > section.container__header > div:nth-child(4) > div > div").innerText);
+    restoreEnergyButton = document.querySelector("#root > div > div > div > section.container__header > div:nth-child(5) > div.resource-energy > img");
+    exchangeFood = document.querySelector("body > div.modal-wrapper > div > div.modal-close-button.tooltip > button > div");
 }
 
 start();
