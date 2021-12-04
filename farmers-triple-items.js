@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Farmers World Bot
 // @namespace    http://tampermonkey.net/
-// @version      0.2.3
+// @version      0.2.4
 // @description  Let's farm easy way
 // @author       ZRADNYK
 // @match        https://play.farmersworld.io
@@ -18,12 +18,14 @@ let goldIcon;
 let repairButton;
 let mineButton;
 let timeSelector;
-let homeButtonSelector;
+let homeButton;
 let durability;
+let mapButton;
+let buildPlotButton;
 let firstLogIn = true;
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
-let timeLeft, id;
+let miningTimeLeft, buildingTimeLeft, mineId;
 
 async function start() {
     if(firstLogIn) {
@@ -32,29 +34,31 @@ async function start() {
         firstLogIn = false;
     }
     await initItems();
-    timeLeft =  await getCooldown();
-    let timeLeftMillis = stringToTime(timeLeft);
-    console.log(new Date().toString() + ' Current cooldown : ' + timeLeft);
+    miningTimeLeft =  await getMiningCooldown();
+    buildingTimeLeft = await buildIfNeeded();
+    let timeLeftMillis = stringToTime(miningTimeLeft);
+    let buildTimeMillis = stringToTime(buildingTimeLeft);
+    setTimeout(start, buildTimeMillis);
     if(timeLeftMillis === 0) {
         await goHome();
         await useItems();
         console.log('mined at ' + new Date());
-        let cd = await getCooldown();
+        let cd = await getMiningCooldown();
         let cdInMillis = stringToTime(cd);
         let nextMineAt = new Date(Date.now() + cdInMillis);
         console.log('Next mine at ' + nextMineAt);
-        id = setTimeout(start, cdInMillis);
+        mineId = setTimeout(start, cdInMillis);
     }
     else {
-        console.log('waiting for ', timeLeft);
-        id = setTimeout(start, timeLeftMillis);
+        console.log('waiting for ', miningTimeLeft);
+        mineId = setTimeout(start, timeLeftMillis);
     }
 }
 
 
 async function goHome() {
-    if(!homeButtonSelector.classList.contains('active')) {
-        homeButtonSelector.click();
+    if(!homeButton.classList.contains('active')) {
+        homeButton.click();
         await delay(2000);
     }
 }
@@ -91,7 +95,7 @@ async function repairIfNeeded() {
     await delay(7000);
 }
 
-async function getCooldown() {
+async function getMiningCooldown() {
     firstItem.click();
     await delay(1000);
     let firstItemTimeLeft = timeSelector.innerText;
@@ -113,6 +117,17 @@ async function getCooldown() {
         case titlMillis:
             return thirdItemTimeLeft;
     }
+}
+
+async function buildIfNeeded() {
+    mapButton.click();
+    await delay(2000);
+    let cooldownSelector = document.querySelector("body > div.modal-wrapper > div > section > div.modal-map-content > div:nth-child(3) > div > div > div.map-component-progress > div > div.progress-bar-countdown > div")
+    if(!buildPlotButton.classList.contains('disabled')) {
+        buildPlotButton.click();
+        await delay(5000);
+    }
+    return cooldownSelector.innerText;
 }
 
 
@@ -146,8 +161,10 @@ async function initItems() {
     mineButton = document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.info-section > div.home-card-button__group > div:nth-child(1) > button > div")
     repairButton = document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.info-section > div.home-card-button__group > div:nth-child(2) > button > div")
     timeSelector = document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.info-section > div.info-time > div");
-    homeButtonSelector = document.querySelector("#root > div > div > div > section.navbar-container > div:nth-child(1)");
+    homeButton = document.querySelector("#root > div > div > div > section.navbar-container > div:nth-child(1)");
     durability = Number.parseInt(document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.card-section > div.card-number > div.content").innerText.split('/')[0]);
+    mapButton = document.querySelector("#root > div > div > div > section.navbar-container > div:nth-child(5) > img");
+    buildPlotButton = document.querySelector("body > div.modal-wrapper > div > section > div.modal-map-content > div:nth-child(3) > div > div > div.build-btn__wrapper > button:nth-child(1) > div");
 }
 
 start();
