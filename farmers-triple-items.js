@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Farmers World Bot
 // @namespace    http://tampermonkey.net/
-// @version      0.3.5
+// @version      0.3.6
 // @description  Let's farm easy way
 // @author       ZRADNYK
 // @match        https://play.farmersworld.io
@@ -112,11 +112,12 @@ async function mine(item) {
         item.click();
         await delay(3000);
         await repairIfNeeded();
-        mineButton.click();
-        await delay(7000);
-
-        goldIcon.click();
-        await delay(2000);
+        if(mineButton.text === 'Mine') {
+            mineButton.click();
+            await delay(7000);
+            goldIcon.click();
+            await delay(2000);
+        }
     } else {
         alert('Cannot find your item!');
     }
