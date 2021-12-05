@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Farmers World Bot
 // @namespace    http://tampermonkey.net/
-// @version      0.3.2
+// @version      0.3.3
 // @description  Let's farm easy way
 // @author       ZRADNYK
 // @match        https://play.farmersworld.io
