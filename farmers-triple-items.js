@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Farmers World Bot
 // @namespace    http://tampermonkey.net/
-// @version      0.3.1
+// @version      0.3.2
 // @description  Let's farm easy way
 // @author       ZRADNYK
 // @match        https://play.farmersworld.io
@@ -45,19 +45,19 @@ async function start() {
         console.log('Mining - waiting for ', miningTimeLeft);
         mineTimeoutId = setTimeout(start, miningTimeLeftMillis);
     }
-    let cropTimeLeft = await getCropCooldown();
-    if(stringToTime(cropTimeLeft) === 0) {
-        await waterCrops();
-        clearTimeout(cropTimeoutId);
-    }
-    else {
-        console.log('Planting - waiting for ', cropTimeLeft);
-        cropTimeoutId = setTimeout(waterCrops, stringToTime(cropTimeLeft));
-    }
+    // let cropTimeLeft = await getCropCooldown();
+    // if(stringToTime(cropTimeLeft) === 0) {
+    await waterCrops();
+    // clearTimeout(cropTimeoutId);
+    // }
+    // else {
+    //     console.log('Planting - waiting for ', cropTimeLeft);
+    //     cropTimeoutId = setTimeout(waterCrops, stringToTime(cropTimeLeft));
+    // }
 }
 
 async function fillEnergy() {
-    if(energy <= 100) {
+    if(energy <= 300) {
         let foodNeeded = (500 - energy) / 5;
         if(food > 0) {
             if(food - foodNeeded >= 0) {
@@ -173,11 +173,11 @@ async function waterCrops() {
     for(let i = 1; i < 9; i++) {
         let cornSelector = document.querySelector("#root > div > div > div.game-content > div.wapper > section > div > section > img:nth-child(" + i + ")");
         cornSelector.click();
-        await delay(500);
+        await delay(100);
         let waterCropButton = document.querySelector("#root > div > div > div.game-content > div.wapper > section > div > div > div.info-section > div.home-card-button__group > div:nth-child(1) > button > div");
         if(waterCropButton.innerText === 'Water') {
             waterCropButton.click();
-            await delay(5000);
+            await delay(7000);
             await fillEnergy();
             console.log('Planting - Crop  ' + i + ' has been watered');
         }
@@ -224,7 +224,7 @@ async function checkAuthorize() {
         await delay(10000);
         console.log('logged in successfully');
     } else {
-        alert('Wax session is expired! Please log in manually!');
+        alert('You\'ve logged in by yourself!');
     }
 }
 
@@ -244,3 +244,4 @@ async function initItems() {
 }
 
 start();
+setInterval(() => window.location.reload(), 9 * 60 * 1000);
