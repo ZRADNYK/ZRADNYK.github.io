@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Farmers World Bot
 // @namespace    http://tampermonkey.net/
-// @version      0.3.0
+// @version      0.3.1
 // @description  Let's farm easy way
 // @author       ZRADNYK
 // @match        https://play.farmersworld.io
@@ -15,12 +15,12 @@ let firstItem, secondItem, thirdItem;
 let timeSelector;
 let goldIcon, homeButton, mapButton, mineButton, repairButton;
 let durability;
-let food, restoreEnergyButton, energy, exchangeFood;
+let food, energy;
 let firstLogIn = true;
 
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
-let miningTimeLeft, id;
+let miningTimeLeft, mineTimeoutId, cropTimeoutId;
 
 async function start() {
     if(firstLogIn) {
@@ -30,22 +30,29 @@ async function start() {
     }
     await initItems();
     await fillEnergy();
-    miningTimeLeft =  await getCooldown();
+    miningTimeLeft =  await getMiningCooldown();
     let miningTimeLeftMillis = stringToTime(miningTimeLeft);
-    console.log(new Date().toString() + ' Current cooldown : ' + miningTimeLeft);
     if(miningTimeLeftMillis === 0) {
         await goHome();
         await useItems();
-        console.log('mined at ' + new Date());
-        let cd = await getCooldown();
+        let cd = await getMiningCooldown();
         let cdInMillis = stringToTime(cd);
         let nextMineAt = new Date(Date.now() + cdInMillis);
         console.log('Next mine at ' + nextMineAt);
-        id = setTimeout(start, cdInMillis);
+        mineTimeoutId = setTimeout(start, cdInMillis);
     }
     else {
-        console.log('waiting for ', miningTimeLeft);
-        id = setTimeout(start, miningTimeLeftMillis);
+        console.log('Mining - waiting for ', miningTimeLeft);
+        mineTimeoutId = setTimeout(start, miningTimeLeftMillis);
+    }
+    let cropTimeLeft = await getCropCooldown();
+    if(stringToTime(cropTimeLeft) === 0) {
+        await waterCrops();
+        clearTimeout(cropTimeoutId);
+    }
+    else {
+        console.log('Planting - waiting for ', cropTimeLeft);
+        cropTimeoutId = setTimeout(waterCrops, stringToTime(cropTimeLeft));
     }
 }
 
@@ -54,12 +61,12 @@ async function fillEnergy() {
         let foodNeeded = (500 - energy) / 5;
         if(food > 0) {
             if(food - foodNeeded >= 0) {
-                console.log('Energy - eating ' + (food - foodNeeded) + ' food');
+                console.log('Energy - eating ' + foodNeeded + ' food');
                 await eatFood(foodNeeded);
             }
             else {
-                console.log('Energy - eating ' + (foodNeeded - food) + ' food');
-                await eatFood(foodNeeded - food);
+                console.log('Energy - eating ' + food + ' food');
+                await eatFood(food);
             }
         }
         else {
@@ -69,10 +76,15 @@ async function fillEnergy() {
 }
 
 async function eatFood(foodNumber) {
+    let restoreEnergyButton = document.querySelector("#root > div > div > div > section.container__header > div:nth-child(5) > div.resource-energy > img");
     restoreEnergyButton.click();
     await delay(2000);
-    let energyInput = document.querySelector("body > div.modal-wrapper > div > div.modal-body > input");
-    energyInput.value = foodNumber;
+    let plusSignButton = document.querySelector("body > div.modal-wrapper > div > div.modal-body > img:nth-child(3)");
+    for (let i = 0; i < foodNumber; i++) {
+        plusSignButton.click();
+        await delay(100);
+    }
+    let exchangeFood = document.querySelector("body > div.modal-wrapper > div > div.modal-close-button.tooltip > button > div")
     exchangeFood.click();
     await delay(5000);
 }
@@ -116,7 +128,7 @@ async function repairIfNeeded() {
     await delay(7000);
 }
 
-async function getCooldown() {
+async function getMiningCooldown() {
     firstItem.click();
     await delay(1000);
     let firstItemTimeLeft = timeSelector.innerText;
@@ -138,6 +150,59 @@ async function getCooldown() {
         case titlMillis:
             return thirdItemTimeLeft;
     }
+}
+
+async function goToMining() {
+    mapButton.click();
+    await delay(1000);
+    let mineMap = document.querySelector("body > div.modal-wrapper > div > section > div.modal-map-content > div:nth-child(1) > span");
+    mineMap.click();
+    await delay(2000);
+}
+
+async function goToCrop() {
+    mapButton.click();
+    await delay(1000);
+    let cropMap = document.querySelector("body > div.modal-wrapper > div > section > div.modal-map-content > div:nth-child(3) > span")
+    cropMap.click();
+    await delay(2000);
+}
+
+async function waterCrops() {
+    await goToCrop();
+    for(let i = 1; i < 9; i++) {
+        let cornSelector = document.querySelector("#root > div > div > div.game-content > div.wapper > section > div > section > img:nth-child(" + i + ")");
+        cornSelector.click();
+        await delay(500);
+        let waterCropButton = document.querySelector("#root > div > div > div.game-content > div.wapper > section > div > div > div.info-section > div.home-card-button__group > div:nth-child(1) > button > div");
+        if(waterCropButton.innerText === 'Water') {
+            waterCropButton.click();
+            await delay(5000);
+            await fillEnergy();
+            console.log('Planting - Crop  ' + i + ' has been watered');
+        }
+    }
+    await goToMining();
+}
+
+async function getCropCooldown() {
+    await goToCrop();
+    let maxCd = '00:00:00';
+    let maxCdMillis = 0;
+    for(let i = 1; i < 9; i++) {
+        let cornSelector = document.querySelector( "#root > div > div > div.game-content > div.wapper > section > div > section > img:nth-child(" + i + ")");
+        cornSelector.click();
+        await delay(500);
+        let cornTimeLeft = document.querySelector("#root > div > div > div.game-content > div.wapper > section > div > div > div.info-section > div.info-time > div").innerText;
+        console.log('Crop ' + i + ' - ' + cornTimeLeft);
+        let cornTimeLeftMillis = stringToTime(cornTimeLeft);
+        if(maxCdMillis <= cornTimeLeftMillis) {
+            maxCdMillis = cornTimeLeftMillis;
+            maxCd = cornTimeLeft;
+        }
+    }
+    await goToMining();
+    return maxCd;
 }
 
 
@@ -175,8 +240,7 @@ async function initItems() {
     durability = Number.parseInt(document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.card-section > div.card-number > div.content").innerText.split('/')[0]);
     energy = Number.parseFloat(document.querySelector("#root > div > div > div > section.container__header > div:nth-child(5) > div.resource-number > div").innerText);
     food = Number.parseFloat(document.querySelector("#root > div > div > div > section.container__header > div:nth-child(4) > div > div").innerText);
-    restoreEnergyButton = document.querySelector("#root > div > div > div > section.container__header > div:nth-child(5) > div.resource-energy > img");
-    exchangeFood = document.querySelector("body > div.modal-wrapper > div > div.modal-close-button.tooltip > button > div");
+    mapButton = document.querySelector("#root > div > div > div > section.navbar-container > div:nth-child(5) > img");
 }
 
 start();
