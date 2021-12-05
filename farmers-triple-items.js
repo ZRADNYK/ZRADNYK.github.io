@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Farmers World Bot
 // @namespace    http://tampermonkey.net/
-// @version      0.3.3
+// @version      0.3.4
 // @description  Let's farm easy way
 // @author       ZRADNYK
 // @match        https://play.farmersworld.io
@@ -181,6 +181,10 @@ async function waterCrops() {
             await delay(7000);
             await fillEnergy();
             console.log('Planting - Crop  ' + i + ' has been watered');
+        }
+        else {
+            let cornTimeLeft = document.querySelector("#root > div > div > div.game-content > div.wapper > section > div > div > div.info-section > div.info-time > div").innerText;
+            console.log('Crop ' + i + ' - ' + cornTimeLeft);
         }
     }
     await goToMining();
