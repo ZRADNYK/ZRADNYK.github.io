@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Farmers World Bot
 // @namespace    http://tampermonkey.net/
-// @version      0.3.4
+// @version      0.3.5
 // @description  Let's farm easy way
 // @author       ZRADNYK
 // @match        https://play.farmersworld.io
@@ -32,19 +32,19 @@ async function start() {
     await fillEnergy();
     miningTimeLeft =  await getMiningCooldown();
     let miningTimeLeftMillis = stringToTime(miningTimeLeft);
-    if(miningTimeLeftMillis === 0) {
-        await goHome();
-        await useItems();
-        let cd = await getMiningCooldown();
-        let cdInMillis = stringToTime(cd);
-        let nextMineAt = new Date(Date.now() + cdInMillis);
-        console.log('Next mine at ' + nextMineAt);
-        mineTimeoutId = setTimeout(start, cdInMillis);
-    }
-    else {
-        console.log('Mining - waiting for ', miningTimeLeft);
-        mineTimeoutId = setTimeout(start, miningTimeLeftMillis);
-    }
+    // if(miningTimeLeftMillis === 0) {
+    await goHome();
+    await useItems();
+    let cd = await getMiningCooldown();
+    let cdInMillis = stringToTime(cd);
+    let nextMineAt = new Date(Date.now() + cdInMillis);
+    console.log('Mining - Next mine at ' + nextMineAt);
+    mineTimeoutId = setTimeout(start, cdInMillis);
+    // }
+    // else {
+    //     console.log('Mining - waiting for ', miningTimeLeft);
+    //     mineTimeoutId = setTimeout(start, miningTimeLeftMillis);
+    // }
     // let cropTimeLeft = await getCropCooldown();
     // if(stringToTime(cropTimeLeft) === 0) {
     await waterCrops();
@@ -248,4 +248,7 @@ async function initItems() {
 }
 
 start();
-setInterval(() => window.location.reload(), 9 * 60 * 1000);
+setInterval(() => {
+    clearTimeout(mineTimeoutId);
+    window.location.reload()
+}, 20 * 60 * 1000);
