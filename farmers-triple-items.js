@@ -15,7 +15,7 @@ let firstItem, secondItem, thirdItem;
 let timeSelector;
 let goldIcon, homeButton, mapButton, mineButton, repairButton;
 let durability;
-let food, energy;
+let energy;
 let firstLogIn = true;
 
 
@@ -57,6 +57,7 @@ async function start() {
 }
 
 async function fillEnergy() {
+    let food = Number.parseFloat(document.querySelector("#root > div > div > div > section.container__header > div:nth-child(4) > div > div").innerText);
     if(energy <= 300) {
         let foodNeeded = (500 - energy) / 5;
         if(food > 0) {
@@ -239,7 +240,6 @@ async function initItems() {
     homeButtonSelector = document.querySelector("#root > div > div > div > section.navbar-container > div:nth-child(1)");
     durability = Number.parseInt(document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.card-section > div.card-number > div.content").innerText.split('/')[0]);
     energy = Number.parseFloat(document.querySelector("#root > div > div > div > section.container__header > div:nth-child(5) > div.resource-number > div").innerText);
-    food = Number.parseFloat(document.querySelector("#root > div > div > div > section.container__header > div:nth-child(4) > div > div").innerText);
     mapButton = document.querySelector("#root > div > div > div > section.navbar-container > div:nth-child(5) > img");
 }
 
