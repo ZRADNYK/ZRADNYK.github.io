@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Farmers World Bot
 // @namespace    http://tampermonkey.net/
-// @version      0.3.6
+// @version      0.3.7
 // @description  Let's farm easy way
 // @author       ZRADNYK
 // @match        https://play.farmersworld.io
@@ -112,7 +112,7 @@ async function mine(item) {
         item.click();
         await delay(3000);
         await repairIfNeeded();
-        if(mineButton.text === 'Mine') {
+        if(mineButton.innerText === 'Mine') {
             mineButton.click();
             await delay(7000);
             goldIcon.click();
@@ -227,7 +227,7 @@ async function checkAuthorize() {
 
     if(waxWalletAccount !== null) {
         waxWalletAccount.click();
-        await delay(10000);
+        await delay(20000);
         console.log('logged in successfully');
     } else {
         alert('You\'ve logged in by yourself!');
