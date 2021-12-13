@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Farmers World Bot
 // @namespace    http://tampermonkey.net/
-// @version      0.3.8
+// @version      0.3.9
 // @description  Let's farm easy way
 // @author       ZRADNYK
 // @match        https://play.farmersworld.io
@@ -16,7 +16,7 @@ const usePlant = true;
 
 const loginButton = document.querySelector("#root > div > div > div > button");
 let timeSelector;
-let goldIcon, mapButton, mineButton, repairButton;
+let goldIcon;
 let firstLogIn = true;
 let scriptInterval = 0;
 
@@ -89,19 +89,19 @@ async function goHome() {
 }
 
 async function useItems() {
-    let itemSelector = "#root > div > div > div > div.wapper > section > div > section > img";
+    let itemSelector = '#root > div > div > div > div.wapper > section > div > section > img';
     firstItem = document.querySelector(itemSelector);
     if(firstItem !== undefined) {
-        await mine(firstItem);
+        await mine(firstItem, 1);
         let hasNextItem = true;
         let nextItemNumber = 2;
         while (hasNextItem) {
             let nextItemSelector = itemSelector + ':nth-child(' + nextItemNumber + ')';
             let nextItem = document.querySelector(nextItemSelector);
             if(nextItem !== null) {
-                nextItemNumber++;
                 firstItem.click();
-                await mine(nextItem);
+                await mine(nextItem, nextItemNumber);
+                nextItemNumber++;
             }
             else {
                 hasNextItem = false;
@@ -112,60 +112,80 @@ async function useItems() {
 }
 
 
-async function mine(item) {
+async function mine(item, number) {
     item.click();
     await delay(3000);
     await repairIfNeeded();
+    debugger;
+    let mineButton = document.querySelector("#root > div > div > div.game-content > div.wapper > section > div > div > div.info-section > div.home-card-button__group > div:nth-child(1) > button > div");
     if(mineButton.innerText === 'Mine') {
         mineButton.click();
-        await delay(7000);
         goldIcon.click();
-        await delay(2000);
+        await delay(3000);
+        let itemName = document.querySelector("#root > div > div > div.game-content > div.wapper > section > div > div > div.info-section > div.info-text__section > div.info-title > div.info-title-name").innerText;
+        console.log(itemName, ' ', number, ' mined at ', new Date().toLocaleTimeString());
     }
 }
 
 async function repairIfNeeded() {
+    let repairButton = document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.info-section > div.home-card-button__group > div:nth-child(2) > button > div");
     let durability = Number.parseInt(document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.card-section > div.card-number > div.content")
         .innerText.split('/')[0]);
     if(durability < 50 && repairButton.classList.contains('disabled') === false) {
         repairButton.click();
+        await delay(10000);
     }
-    await delay(7000);
 }
 
 
 async function goToMining() {
+    let mapButton = document.querySelector("#root > div > div > div.game-content > section.navbar-container > div:nth-child(5) > img");
     mapButton.click();
-    await delay(1000);
+    await delay(10000);
     let mineMap = document.querySelector("body > div.modal-wrapper > div > section > div.modal-map-content > div:nth-child(1) > span");
-    mineMap.click();
-    await delay(2000);
+    if(mineMap !== null) {
+        mineMap.click();
+    }
+    else {
+        await delay(5000);
+        mineMap = document.querySelector("body > div.modal-wrapper > div > section > div.modal-map-content > div:nth-child(1) > span");
+        mineMap.click();
+    }
 }
 
 async function goToCrop() {
+    let mapButton = document.querySelector("#root > div > div > div.game-content > section.navbar-container > div:nth-child(5) > img");
     mapButton.click();
-    await delay(1000);
-    let cropMap = document.querySelector("body > div.modal-wrapper > div > section > div.modal-map-content > div:nth-child(3) > span")
-    cropMap.click();
-    await delay(2000);
+    await delay(7000);
+    let cropMap = document.querySelector("body > div.modal-wrapper > div > section > div.modal-map-content > div:nth-child(3) > span");
+    if(cropMap !== null) {
+        cropMap.click();
+    }
+    else {
+        await delay(5000);
+        cropMap = document.querySelector("body > div.modal-wrapper > div > section > div.modal-map-content > div:nth-child(3) > span");
+        cropMap.click();
+    }
 }
 
 async function waterCrops() {
     await goToCrop();
     for(let i = 1; i < 9; i++) {
         let cornSelector = document.querySelector("#root > div > div > div.game-content > div.wapper > section > div > section > img:nth-child(" + i + ")");
-        cornSelector.click();
-        await delay(100);
-        let waterCropButton = document.querySelector("#root > div > div > div.game-content > div.wapper > section > div > div > div.info-section > div.home-card-button__group > div:nth-child(1) > button > div");
-        if(waterCropButton.innerText === 'Water') {
-            waterCropButton.click();
-            await delay(7000);
-            await fillEnergy();
-            console.log('Planting - Crop  ' + i + ' has been watered');
-        }
-        else {
-            let cornTimeLeft = document.querySelector("#root > div > div > div.game-content > div.wapper > section > div > div > div.info-section > div.info-time > div").innerText;
-            console.log('Crop ' + i + ' - ' + cornTimeLeft);
+        if(cornSelector !== null) {
+            cornSelector.click();
+            await delay(1000);
+            let waterCropButton = document.querySelector("#root > div > div > div.game-content > div.wapper > section > div > div > div.info-section > div.home-card-button__group > div:nth-child(1) > button > div");
+            if(waterCropButton.innerText === 'Water') {
+                waterCropButton.click();
+                await delay(7000);
+                await fillEnergy();
+                console.log('Planting - Crop  ' + i + ' has been watered');
+            }
+            else {
+                let cornTimeLeft = document.querySelector("#root > div > div > div.game-content > div.wapper > section > div > div > div.info-section > div.info-time > div").innerText;
+                console.log('Crop ' + i + ' - ' + cornTimeLeft);
+            }
         }
     }
     await goToMining();
@@ -191,11 +211,8 @@ async function checkAuthorize() {
 
 async function initItems() {
     goldIcon = document.querySelector("#root > div > div > div > section.container__header > div:nth-child(1) > i > img");
-    mineButton = document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.info-section > div.home-card-button__group > div:nth-child(1) > button > div")
-    repairButton = document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.info-section > div.home-card-button__group > div:nth-child(2) > button > div")
     timeSelector = document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.info-section > div.info-time > div");
     homeButtonSelector = document.querySelector("#root > div > div > div > section.navbar-container > div:nth-child(1)");
-    mapButton = document.querySelector("#root > div > div > div > section.navbar-container > div:nth-child(5) > img");
 }
 
 start();
