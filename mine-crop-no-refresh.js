@@ -117,7 +117,6 @@ async function mine(item, number) {
     item.click();
     await delay(3000);
     await repairIfNeeded();
-    debugger;
     let mineButton = document.querySelector("#root > div > div > div.game-content > div.wapper > section > div > div > div.info-section > div.home-card-button__group > div:nth-child(1) > button > div");
     if(mineButton.innerText === 'Mine') {
         mineButton.click();
