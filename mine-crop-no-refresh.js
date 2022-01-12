@@ -17,6 +17,7 @@ const usePlant = true;
 const loginButton = document.querySelector("#root > div > div > div > button");
 let timeSelector;
 let goldIcon;
+let homeButtonSelector;
 let firstLogIn = true;
 let scriptInterval = 0;
 
@@ -46,7 +47,7 @@ async function fillEnergy() {
     let food = Number.parseFloat(document.querySelector("#root > div > div > div > section.container__header > div:nth-child(4) > div > div").innerText);
     let energy = Number.parseFloat(document.querySelector("#root > div > div > div > section.container__header > div:nth-child(5) > div.resource-number > div").innerText);
     console.log('Energy: ', energy, '/500', ' Food: ', food);
-    if(energy <= 300) {
+    if(energy <= 45) {
         let foodNeeded = (500 - energy) / 5;
         if(food > 0) {
             if(food - foodNeeded >= 0) {
@@ -90,7 +91,7 @@ async function goHome() {
 
 async function useItems() {
     let itemSelector = '#root > div > div > div > div.wapper > section > div > section > img';
-    firstItem = document.querySelector(itemSelector);
+    let firstItem = document.querySelector(itemSelector);
     if(firstItem !== undefined) {
         await mine(firstItem, 1);
         let hasNextItem = true;
@@ -216,3 +217,6 @@ async function initItems() {
 }
 
 start();
+setTimeout(function() {
+    window.location.reload(1);
+}, 2 * 60 * 60 * 1000);
