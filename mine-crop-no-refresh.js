@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Farmers World Bot
 // @namespace    http://tampermonkey.net/
-// @version      0.3.10
+// @version      0.3.11
 // @description  Let's farm easy way
 // @author       ZRADNYK
 // @match        https://play.farmersworld.io
@@ -32,7 +32,7 @@ async function start() {
     await initItems();
     await fillEnergy();
     await mineAndCrop();
-    scriptInterval = setInterval(mineAndCrop, 5 * 60 * 1000);
+    scriptInterval = setInterval(mineAndCrop, 1 * 60 * 1000);
 }
 
 async function mineAndCrop() {
@@ -44,10 +44,10 @@ async function mineAndCrop() {
 }
 
 async function fillEnergy() {
-    let food = Number.parseFloat(document.querySelector("#root > div > div > div > section.container__header > div:nth-child(4) > div > div").innerText);
-    let energy = Number.parseFloat(document.querySelector("#root > div > div > div > section.container__header > div:nth-child(5) > div.resource-number > div").innerText);
+    let food = Number.parseFloat(document.querySelector("#root > div > div > div.game-content > section.container__header > div:nth-child(4) > div > div").innerText);
+    let energy = Number.parseFloat(document.querySelector('#root > div > div > div.game-content > section.container__header > div:nth-child(5) > div.resource-number > div').innerText);
     console.log('Energy: ', energy, '/500', ' Food: ', food);
-    if(energy <= 45) {
+    if(energy <= 200) {
         let foodNeeded = (500 - energy) / 5;
         if(food > 0) {
             if(food - foodNeeded >= 0) {
@@ -70,12 +70,12 @@ async function fillEnergy() {
 
 async function eatFood(foodNumber) {
     let restoreEnergyButton = document.querySelector("#root > div > div > div > section.container__header > div:nth-child(5) > div.resource-energy > img");
-    restoreEnergyButton.click();
+    await restoreEnergyButton.click();
     await delay(2000);
     let plusSignButton = document.querySelector("body > div.modal-wrapper > div > div.modal-body > img:nth-child(3)");
     for (let i = 0; i < foodNumber; i++) {
-        plusSignButton.click();
-        await delay(100);
+        await plusSignButton.click();
+        await delay(1000);
     }
     let exchangeFood = document.querySelector("body > div.modal-wrapper > div > div.modal-close-button.tooltip > button > div")
     exchangeFood.click();
@@ -173,7 +173,7 @@ async function waterCrops() {
     for(let i = 1; i < 9; i++) {
         let cornSelector = document.querySelector("#root > div > div > div.game-content > div.wapper > section > div > section > img:nth-child(" + i + ")");
         if(cornSelector !== null) {
-            cornSelector.click();
+            await cornSelector.click();
             await delay(1000);
             let waterCropButton = document.querySelector("#root > div > div > div.game-content > div.wapper > section > div > div > div.info-section > div.home-card-button__group > div:nth-child(1) > button > div");
             if(waterCropButton.innerText === 'Water') {
@@ -195,9 +195,9 @@ async function checkAuthorize() {
     console.log('Trying to login to your .wam account');
     if (loginButton !== null) {
         loginButton.click();
-        await delay(2000);
+        await delay(10000);
     }
-    let waxWalletAccount = document.querySelector("#root > div > div > div:nth-child(2) > div.login-modal-container > button:nth-child(2)");
+    let waxWalletAccount = document.querySelector("#root > div > div > div:nth-child(2) > div.login-modal-container > button:nth-child(2)")
 
     if(waxWalletAccount !== null) {
         waxWalletAccount.click();
@@ -218,4 +218,4 @@ async function initItems() {
 start();
 setTimeout(function() {
     window.location.reload(1);
-}, 2 * 60 * 60 * 1000);
+}, 0.5 * 60 * 60 * 1000);
