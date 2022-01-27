@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Farmers World Bot
 // @namespace    http://tampermonkey.net/
-// @version      0.3.11
+// @version      0.3.12
 // @description  Let's farm easy way
 // @author       ZRADNYK
 // @match        https://play.farmersworld.io
@@ -32,7 +32,6 @@ async function start() {
     await initItems();
     await fillEnergy();
     await mineAndCrop();
-    scriptInterval = setInterval(mineAndCrop, 1 * 60 * 1000);
 }
 
 async function mineAndCrop() {
@@ -44,43 +43,23 @@ async function mineAndCrop() {
 }
 
 async function fillEnergy() {
-    let food = Number.parseFloat(document.querySelector("#root > div > div > div.game-content > section.container__header > div:nth-child(4) > div > div").innerText);
-    let energy = Number.parseFloat(document.querySelector('#root > div > div > div.game-content > section.container__header > div:nth-child(5) > div.resource-number > div').innerText);
-    console.log('Energy: ', energy, '/500', ' Food: ', food);
-    if(energy <= 200) {
-        let foodNeeded = (500 - energy) / 5;
-        if(food > 0) {
-            if(food - foodNeeded >= 0) {
-                console.log('Energy - eating ' + foodNeeded + ' food');
-                await eatFood(foodNeeded);
-            }
-            else {
-                console.log('Energy - eating ' + food + ' food');
-                await eatFood(food);
-            }
-        }
-        else {
-            console.log('Energy - no food to eat!');
-        }
-    }
-    else {
-        console.log('Energy - no need to restore');
-    }
-}
-
-async function eatFood(foodNumber) {
     let restoreEnergyButton = document.querySelector("#root > div > div > div > section.container__header > div:nth-child(5) > div.resource-energy > img");
     await restoreEnergyButton.click();
     await delay(2000);
     let plusSignButton = document.querySelector("body > div.modal-wrapper > div > div.modal-body > img:nth-child(3)");
-    for (let i = 0; i < foodNumber; i++) {
+    let foodInput = document.querySelector("body > div.modal-wrapper > div > div.modal-body > input");
+    let foodToEat = 0;
+    do {
         await plusSignButton.click();
-        await delay(1000);
-    }
+        await delay(500);
+        foodToEat += 5;
+    }while (foodToEat > Number.parseInt(foodInput.value));
+
     let exchangeFood = document.querySelector("body > div.modal-wrapper > div > div.modal-close-button.tooltip > button > div")
     exchangeFood.click();
     await delay(5000);
 }
+
 
 async function goHome() {
     if(!homeButtonSelector.classList.contains('active')) {
@@ -215,7 +194,7 @@ async function initItems() {
     homeButtonSelector = document.querySelector("#root > div > div > div > section.navbar-container > div:nth-child(1)");
 }
 
-start();
+setInterval(start, 1 * 60 * 1000);
 setTimeout(function() {
     window.location.reload(1);
 }, 0.5 * 60 * 60 * 1000);
