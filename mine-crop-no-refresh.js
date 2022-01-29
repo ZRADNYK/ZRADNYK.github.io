@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Farmers World Bot
 // @namespace    http://tampermonkey.net/
-// @version      0.3.13
+// @version      0.3.14
 // @description  Let's farm easy way
 // @author       ZRADNYK
 // @match        https://play.farmersworld.io
@@ -10,7 +10,8 @@
 // ==/UserScript==
 
 // user variables
-const usePlant = true;
+let useMining = false;
+let usePlant = true;
 //
 
 
@@ -36,9 +37,11 @@ async function start() {
 
 async function mineAndCrop() {
     await goHome();
-    await useItems();
+    if(useMining) {
+        await useItems();
+    }
     if(usePlant) {
-        await waterCrops();
+       await waterCrops();
     }
 }
 
@@ -178,7 +181,7 @@ async function waterCrops() {
             }
         }
     }
-    await goToMining();
+   // await goToMining();
 }
 
 async function checkAuthorize() {
@@ -200,6 +203,11 @@ async function initItems() {
     goldIcon = document.querySelector("#root > div > div > div > section.container__header > div:nth-child(1) > i > img");
     timeSelector = document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.info-section > div.info-time > div");
     homeButtonSelector = document.querySelector("#root > div > div > div > section.navbar-container > div:nth-child(1)");
+    let miningItemsSelector = '#root > div > div > div > div.wapper > section > div > section > img';
+    if(document.querySelector(miningItemsSelector) == null) {
+        useMining = false;
+        console.log('Mining - disabled');
+    }
 }
 
 start();
