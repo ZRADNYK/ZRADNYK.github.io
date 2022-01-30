@@ -10,8 +10,7 @@
 // ==/UserScript==
 
 // user variables
-let useMining = false;
-let usePlant = true;
+const usePlant = true;
 //
 
 
@@ -20,6 +19,7 @@ let timeSelector;
 let goldIcon;
 let homeButtonSelector;
 let firstLogIn = true;
+let scriptInterval = 0;
 
 const delay = ms => new Promise(res => setTimeout(res, ms));
 
@@ -36,11 +36,9 @@ async function start() {
 
 async function mineAndCrop() {
     await goHome();
-    if(useMining) {
-        await useItems();
-    }
+    await useItems();
     if(usePlant) {
-       await waterCrops();
+        await waterCrops();
     }
 }
 
@@ -50,26 +48,16 @@ async function fillEnergy() {
     await delay(2000);
     let plusSignButton = document.querySelector("body > div.modal-wrapper > div > div.modal-body > img:nth-child(3)");
     let foodInput = document.querySelector("body > div.modal-wrapper > div > div.modal-body > input");
-    let foodBefore = 0;
-    let foodAfter = 0;
+    let foodToEat = 0;
     do {
-        foodBefore = Number.parseInt(foodInput.value);
         await plusSignButton.click();
         await delay(500);
-        foodAfter = Number.parseInt(foodInput.value);
-        if(Number.parseInt(foodInput.value) == foodBefore) {
-            break;
-        }
-    }while (foodAfter > foodBefore);
+        foodToEat += 5;
+    }while (foodToEat > Number.parseInt(foodInput.value));
 
-    if(foodAfter > 0) {
-        let exchangeFood = document.querySelector("body > div.modal-wrapper > div > div.modal-close-button.tooltip > button > div")
-        exchangeFood.click();
-        console.log('clicked');
-        await delay(5000);
-    }
-    let goldIcon = document.querySelector("#root > div > div > div > section.container__header > div:nth-child(1) > i > img");
-    goldIcon.click();
+    let exchangeFood = document.querySelector("body > div.modal-wrapper > div > div.modal-close-button.tooltip > button > div")
+    exchangeFood.click();
+    await delay(5000);
 }
 
 
@@ -84,7 +72,6 @@ async function useItems() {
     let itemSelector = '#root > div > div > div > div.wapper > section > div > section > img';
     let firstItem = document.querySelector(itemSelector);
     if(firstItem !== undefined) {
-        await fillEnergy();
         await mine(firstItem, 1);
         let hasNextItem = true;
         let nextItemNumber = 2;
@@ -167,11 +154,11 @@ async function waterCrops() {
         if(cornSelector !== null) {
             await cornSelector.click();
             await delay(1000);
-            await fillEnergy();
             let waterCropButton = document.querySelector("#root > div > div > div.game-content > div.wapper > section > div > div > div.info-section > div.home-card-button__group > div:nth-child(1) > button > div");
             if(waterCropButton.innerText === 'Water') {
                 waterCropButton.click();
                 await delay(7000);
+                await fillEnergy();
                 console.log('Planting - Crop  ' + i + ' has been watered');
             }
             else {
@@ -180,7 +167,7 @@ async function waterCrops() {
             }
         }
     }
-   await goToMining();
+    await goToMining();
 }
 
 async function checkAuthorize() {
@@ -195,6 +182,9 @@ async function checkAuthorize() {
         waxWalletAccount.click();
         await delay(20000);
         console.log('logged in successfully');
+    } else {
+        clearInterval(scriptInterval);
+        alert('You\'ve logged in by yourself!');
     }
 }
 
@@ -202,17 +192,9 @@ async function initItems() {
     goldIcon = document.querySelector("#root > div > div > div > section.container__header > div:nth-child(1) > i > img");
     timeSelector = document.querySelector("#root > div > div > div > div.wapper > section > div > div > div.info-section > div.info-time > div");
     homeButtonSelector = document.querySelector("#root > div > div > div > section.navbar-container > div:nth-child(1)");
-    let miningItemsSelector = '#root > div > div > div > div.wapper > section > div > section > img';
-    if(document.querySelector(miningItemsSelector) == null) {
-        useMining = false;
-        console.log('Mining - disabled');
-    }
 }
 
-(async () => {
-    await start();
-})();
-setInterval(start, 5 * 60 * 1000);
+setInterval(start, 1 * 60 * 1000);
 setTimeout(function() {
     window.location.reload(1);
 }, 0.5 * 60 * 60 * 1000);
