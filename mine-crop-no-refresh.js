@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Farmers World Bot
 // @namespace    http://tampermonkey.net/
-// @version      0.3.15
+// @version      0.3.16
 // @description  Let's farm easy way
 // @author       ZRADNYK
 // @match        https://play.farmersworld.io
@@ -10,8 +10,9 @@
 // ==/UserScript==
 
 // user variables
-let useMining = false;
+let useMining = true;
 let usePlant = true;
+let isCropBuilt = false;
 //
 
 
@@ -39,8 +40,11 @@ async function mineAndCrop() {
     if(useMining) {
         await useItems();
     }
-    if(usePlant) {
+    if(usePlant && isCropBuilt) {
        await waterCrops();
+    }
+    if(!isCropBuilt) {
+      await buildPlot();
     }
 }
 
@@ -157,6 +161,27 @@ async function goToCrop() {
         await delay(5000);
         cropMap = document.querySelector("body > div.modal-wrapper > div > section > div.modal-map-content > div:nth-child(3) > span");
         cropMap.click();
+    }
+}
+
+async function buildPlot() {
+   let mapButton = document.querySelector("#root > div > div > div.game-content > section.navbar-container > div:nth-child(5) > img");
+    mapButton.click();
+    await delay(7000);
+    let cropMap = document.querySelector("body > div.modal-wrapper > div > section > div.modal-map-content > div:nth-child(3) > span");
+    let buildButton = document.querySelector('body > div.modal-wrapper > div > section > div.modal-map-content > div:nth-child(3) > div > div > div.build-btn__wrapper > button:nth-child(1) > div');
+    if(buildButton != null) {
+        console.log('Crop - not built yet');
+        if(buildButton.innerText === 'Build') {
+            console.log('Crop - building');
+            buildButton.click();
+            await(7000);
+            await goHome();
+            await fillEnergy();
+        }
+    }
+    else {
+         isCropBuilt = true;
     }
 }
 
