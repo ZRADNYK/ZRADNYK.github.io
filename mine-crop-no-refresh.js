@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Farmers World Bot
 // @namespace    http://tampermonkey.net/
-// @version      0.3.16
+// @version      0.3.17
 // @description  Let's farm easy way
 // @author       ZRADNYK
 // @match        https://play.farmersworld.io
@@ -59,17 +59,17 @@ async function fillEnergy() {
     do {
         foodBefore = Number.parseInt(foodInput.value);
         await plusSignButton.click();
-        await delay(500);
+        await delay(200);
         foodAfter = Number.parseInt(foodInput.value);
         if(Number.parseInt(foodInput.value) == foodBefore) {
             break;
         }
     }while (foodAfter > foodBefore);
 
-    if(foodAfter > 0) {
+    if(foodAfter > 100) {
         let exchangeFood = document.querySelector("body > div.modal-wrapper > div > div.modal-close-button.tooltip > button > div")
         exchangeFood.click();
-        console.log('clicked');
+        console.log('Energy - filled');
         await delay(5000);
     }
     let goldIcon = document.querySelector("#root > div > div > div > section.container__header > div:nth-child(1) > i > img");
