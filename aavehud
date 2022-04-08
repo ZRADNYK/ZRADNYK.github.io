@@ -1,0 +1,32 @@
+// ==UserScript==
+// @name         HideHUD
+// @namespace    https://verse.aavegotchi.com
+// @version      0.1
+// @description  try to take over the world!
+// @author       You
+// @match        https://verse.aavegotchi.com
+// @icon         https://www.google.com/s2/favicons?sz=64&domain=tampermonkey.net
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    function hideHUD() {
+
+        setInterval(() => {
+
+            const action_button_container = document.querySelector(".action-button-container");
+
+            if(action_button_container) {
+
+                action_button_container.style.display = "none";
+                document.querySelector(".bottom-right-container").style.display = "none";
+                document.querySelector(".top-right-container").style.display = "none";
+                document.querySelector(".top-left-container").style.display = "none";
+                document.querySelector(".pocket-container").style.display = "none";
+            }
+        }, 5000);
+    }
+    hideHUD();
+})();
